@@ -1,0 +1,17 @@
+{
+  "name": "Personal Life Dashboard",
+  "short_name": "LifeDash",
+  "description": "Local-first personal dashboard for tasks, habits, journal, weekly summary, and backup.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
