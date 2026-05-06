@@ -24,7 +24,17 @@ import {
   importBackup
 } from './lib/storage'
 
+const TABS = [
+  { id: 'capture', label: 'Capture',  icon: '⚡' },
+  { id: 'tasks',   label: 'Tasks',    icon: '✓'  },
+  { id: 'habits',  label: 'Habits',   icon: '↺'  },
+  { id: 'journal', label: 'Journal',  icon: '✦'  },
+  { id: 'summary', label: 'Summary',  icon: '◈'  },
+  { id: 'backup',  label: 'Backup',   icon: '⇅'  },
+]
+
 function App() {
+  const [tab, setTab] = useState('capture')
   const [captures, setCaptures] = useState(() => listCaptures())
   const [tasks, setTasks] = useState(() => listTasks())
   const [habits, setHabits] = useState(() => listHabits())
@@ -58,41 +68,66 @@ function App() {
   }
 
   return (
-    <main className="container">
-      <h1>Personal Life Dashboard</h1>
-      <p>Core v1 complete: Capture, Tasks, Habits, Journal, Weekly Summary, Backup.</p>
+    <div className="app">
+      <header className="header">
+        <span className="logo">
+          <span className="logo-dot" />
+          Life Dashboard
+        </span>
+        <nav className="nav">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              className={`nav-tab${tab === t.id ? ' active' : ''}`}
+              onClick={() => setTab(t.id)}
+            >
+              <span className="nav-tab-icon">{t.icon}</span>
+              {t.label}
+            </button>
+          ))}
+        </nav>
+      </header>
 
-      <QuickCapture onSave={(text) => { addCapture(text); refresh() }} />
-      <section>
-        <h3>Recent captures</h3>
-        <ul className="list">{captures.map((c) => <li key={c.id}>{c.text}</li>)}</ul>
-      </section>
-
-      <TaskList
-        tasks={tasks}
-        onAdd={(title) => { addTask(title); refresh() }}
-        onToggle={(id) => { toggleTask(id); refresh() }}
-        onDelete={(id) => { deleteTask(id); refresh() }}
-      />
-
-      <Habits
-        habits={habits}
-        today={today}
-        onAdd={(name) => { addHabit(name); refresh() }}
-        onToggleToday={(id) => { toggleHabitForDate(id, today); refresh() }}
-        onDelete={(id) => { deleteHabit(id); refresh() }}
-      />
-
-      <Journal
-        key={`${today}:${refreshKey}`}
-        today={today}
-        initialText={getJournalEntryByDate(today)?.text || ''}
-        onSave={(text) => { upsertJournalEntry(text, today); refresh() }}
-      />
-
-      <WeeklySummary tasks={tasks} habits={habits} entries={entries} today={today} />
-      <BackupControls onExport={downloadBackup} onImport={uploadBackup} />
-    </main>
+      <main className="content">
+        {tab === 'capture' && (
+          <QuickCapture
+            captures={captures}
+            onSave={(text) => { addCapture(text); refresh() }}
+          />
+        )}
+        {tab === 'tasks' && (
+          <TaskList
+            tasks={tasks}
+            onAdd={(title) => { addTask(title); refresh() }}
+            onToggle={(id) => { toggleTask(id); refresh() }}
+            onDelete={(id) => { deleteTask(id); refresh() }}
+          />
+        )}
+        {tab === 'habits' && (
+          <Habits
+            habits={habits}
+            today={today}
+            onAdd={(name) => { addHabit(name); refresh() }}
+            onToggleToday={(id) => { toggleHabitForDate(id, today); refresh() }}
+            onDelete={(id) => { deleteHabit(id); refresh() }}
+          />
+        )}
+        {tab === 'journal' && (
+          <Journal
+            key={`${today}:${refreshKey}`}
+            today={today}
+            initialText={getJournalEntryByDate(today)?.text || ''}
+            onSave={(text) => { upsertJournalEntry(text, today); refresh() }}
+          />
+        )}
+        {tab === 'summary' && (
+          <WeeklySummary tasks={tasks} habits={habits} entries={entries} today={today} />
+        )}
+        {tab === 'backup' && (
+          <BackupControls onExport={downloadBackup} onImport={uploadBackup} />
+        )}
+      </main>
+    </div>
   )
 }
 
