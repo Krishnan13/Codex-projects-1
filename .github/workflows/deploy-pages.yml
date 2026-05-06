@@ -2,7 +2,7 @@ name: Deploy app to GitHub Pages
 
 on:
   push:
-    branches: ["work"]
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -17,24 +17,38 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: app/package-lock.json
-      - name: Install
+
+      - name: Install dependencies
+        working-directory: app
         run: npm ci
+
       - name: Build
+        working-directory: app
         run: npm run build
+
+      - name: Install rsvg-convert
+        run: sudo apt-get install -y librsvg2-bin
+
+      - name: Generate PNG icons
+        run: |
+          mkdir -p app/dist/icons
+          rsvg-convert -w 512 -h 512 app/public/favicon.svg -o app/dist/icons/icon-512.png
+          rsvg-convert -w 192 -h 192 app/public/favicon.svg -o app/dist/icons/icon-192.png
+          rsvg-convert -w 180 -h 180 app/public/favicon.svg -o app/dist/icons/apple-touch-icon.png
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

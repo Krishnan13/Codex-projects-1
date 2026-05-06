@@ -1,8 +1,16 @@
-const CACHE_NAME = 'lifedash-cache-v1'
-const ASSETS = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg']
+const CACHE_VERSION = 'v2'
+const CACHE_NAME = `lifedash-${CACHE_VERSION}`
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)))
+  const base = self.registration.scope
+  const assets = [
+    base,
+    base + 'manifest.webmanifest',
+    base + 'favicon.svg',
+  ]
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(assets))
+  )
   self.skipWaiting()
 })
 
@@ -27,7 +35,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy))
           return response
         })
-        .catch(() => caches.match('/index.html'))
+        .catch(() => caches.match(self.registration.scope + 'index.html'))
     })
   )
 })
